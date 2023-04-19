@@ -21,7 +21,22 @@ namespace BlazorEcommerce.Server.Controllers
 
             try {
                 response = await _productService.GetProductAsync();
-            } catch(Exception ex) {
+            } catch (Exception ex) {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("{productId}")]
+        public async Task<ActionResult<ServiceResponse<Product>>> GetProduct(int productId)
+        {
+            var response = new ServiceResponse<Product>();
+
+            try {
+                response = await _productService.GetProductAsync(productId);
+            } catch (Exception ex) {
                 response.Success = false;
                 response.Message = ex.Message;
             }
