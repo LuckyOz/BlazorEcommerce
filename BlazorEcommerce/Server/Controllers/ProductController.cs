@@ -7,11 +7,11 @@ namespace BlazorEcommerce.Server.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductService _productService;
+        private readonly IProductServices _productServices;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductServices productServices)
         {
-            _productService = productService;
+            _productServices = productServices;
         }
 
         [HttpGet]
@@ -19,9 +19,12 @@ namespace BlazorEcommerce.Server.Controllers
         {
             var response = new ServiceResponse<List<Product>>();
 
-            try {
-                response = await _productService.GetProductAsync();
-            } catch (Exception ex) {
+            try
+            {
+                response = await _productServices.GetProductAsync();
+            }
+            catch (Exception ex)
+            {
                 response.Success = false;
                 response.Message = ex.Message;
             }
@@ -34,9 +37,84 @@ namespace BlazorEcommerce.Server.Controllers
         {
             var response = new ServiceResponse<Product>();
 
-            try {
-                response = await _productService.GetProductAsync(productId);
-            } catch (Exception ex) {
+            try
+            {
+                response = await _productServices.GetProductAsync(productId);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("category/{categoryUrl}")]
+        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProductByCategory(string categoryUrl)
+        {
+            var response = new ServiceResponse<List<Product>>();
+
+            try
+            {
+                response = await _productServices.GetProductByCategory(categoryUrl);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("search/{searchText}/{page}")]
+        public async Task<ActionResult<ServiceResponse<ProductSearchResult>>> SearchProduct(string searchText, int page = 1)
+        {
+            var response = new ServiceResponse<ProductSearchResult>();
+
+            try
+            {
+                response = await _productServices.SearchProducts(searchText, page);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("searchsuggestion/{searchText}")]
+        public async Task<ActionResult<ServiceResponse<List<string>>>> GetProductSearchSuggestion(string searchText)
+        {
+            var response = new ServiceResponse<List<string>>();
+
+            try
+            {
+                response = await _productServices.GetProductSearchSuggestions(searchText);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("featured")]
+        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetFeaturedProducts()
+        {
+            var response = new ServiceResponse<List<Product>>();
+
+            try
+            {
+                response = await _productServices.GetFeaturedProducts();
+            }
+            catch (Exception ex)
+            {
                 response.Success = false;
                 response.Message = ex.Message;
             }

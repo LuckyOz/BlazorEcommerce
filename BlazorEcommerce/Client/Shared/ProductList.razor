@@ -1,11 +1,15 @@
-﻿
-@inject IProductService ProductService
+﻿@inject IProductService ProductService
+@implements IDisposable
 
-@if(ProductService.Products == null || ProductService.Products.Count == 0) {
-    <span>Loading Products....</span>
-} else {
+@if (ProductService.Products == null || ProductService.Products.Count == 0)
+{
+    <span>@ProductService.Message</span>
+}
+else
+{
     <ul class="list-unstyled">
-        @foreach (var product in ProductService.Products) {
+        @foreach (var product in ProductService.Products)
+        {
             <li class="media my-3">
                 <div class="media-img-wrapper mr-2">
                     <a href="/product/@product.Id">
@@ -18,18 +22,45 @@
                     </a>
                     <p>@product.Description</p>
                     <h5 class="price">
-                        $@product.Price
+                        @GetPriceText(product)
                     </h5>
                 </div>
             </li>
-        }
+        } 
     </ul>
+    for (int i = 1; i <= ProductService.PageCount; i++)
+    {
+        <a class="btn
+                    @(i == ProductService.CurrentPage ? "btn-info" : "btn-outline-info")
+                    page-selection"
+                    href="/search/@ProductService.LastSearchText/@i">@i</a>
+    }
 }
 
-
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await ProductService.GetProduct();
+        ProductService.ProductChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        ProductService.ProductChanged -= StateHasChanged;
+    }
+
+    private string GetPriceText(Product product)
+    {
+        var varians = product.Variants;
+        if (varians.Count == 0)
+        {
+            return string.Empty;
+        }
+        else if (varians.Count == 1)
+        {
+            return $"${varians[0].Price}";
+        }
+
+        decimal minPrice = varians.Min(q => q.Price);
+        return $"Starting at ${minPrice}";
     }
 }
